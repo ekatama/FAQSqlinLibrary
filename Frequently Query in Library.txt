@@ -1,0 +1,85 @@
+REPAIR DATABASE dengan mysqlcheck
+
+mysqlcheck --repair --databases digilib -p
+
+
+
+////Menghitung jumlah statistik berdasarkan rentang tanggal
+select fakultas, count(*) AS jumlah from statistik where (last_update between '2017-01-01' and '2017-07-31') group by fakultas
+
+////Menghitung jumlah statistik berdasarkan bulan
+select month(last_update) as bulan,fakultas,count(*) as jumlah from statistik where year(last_update)='2017' group by month(last_update),id order by last_update,id
+
+
+////Mencari skripsi yang telah diupload berdasarkan id_user
+SELECT datestamp,title,subjects,keywords FROM `eprint__ordervalues_en` where userid='00000000000000000168' and (datestamp between '2017-07-01' and '2017-08-31')
+
+////Mencari buku berdasarkan klass dengan kode mst_coll_type.coll_type_id=2/textbook dan kode 492.7=Bahasa Arab
+select title, count(title) from biblio,item,mst_coll_type where biblio.biblio_id = item.biblio_id and mst_coll_type.coll_type_id=item.coll_type_id and classification like '%492.7%' and item.coll_type_id like '2' group by title
+
+///Ngambil data peminjaman perbulan
+select loan_date, count(*) AS jumlah from loan where (loan_date between '2017-01-01' and '2017-01-31') group by loan_date order by loan_date ASC
+
+///Buk Marlini
+SELECT * FROM `eprint__ordervalues_en` WHERE edit_lock_user='00000000000000000168'
+
+SELECT title,keywords,subjects,eprintid,publisher,date FROM `eprint__ordervalues_en` WHERE 
+
+edit_lock_user='00000000000000000168'
+
+////Hitung melayani peminjaman perhari
+select count(distinct member_id) from loan where loan_date='2017-10-02' order by loan_date ASC
+
+///Hitung jumlah buku
+select member_id, count(*) from loan where loan_date='2017-10-02' order by loan_date ASC
+
+///Hitung Melayani Pinjaman selama 1 tahun
+select loan_date, count(distinct member_id) from loan where (loan_date between '2017-01-01' and '2017-12-31') group by loan_date order by loan_date ASC
+
+///hitung Jumlah buku yang di Pinjam selama 1 tahun
+select loan_date, count(*) from loan where (loan_date between '2017-01-01' and '2017-12-31') group by loan_date order by loan_date ASC
+
+////Hitung melayani pengembalian selama 1 tahun
+select return_date, count(distinct member_id) from loan where (return_date between '2017-01-01' and '2017-12-31') group by return_date order by return_date ASC
+
+///hitung jumlah buku yang di kembalikan selama 1 tahun
+select return_date, count(*) from loan where (return_date between '2017-01-01' and '2017-12-31') group by return_date order by return_date ASC
+
+///Mencari koleksi buku/textbook agama islam
+SELECT * FROM biblio,item,mst_coll_type WHERE biblio.biblio_id=item.biblio_id and item.coll_type_id=mst_coll_type.coll_type_id and mst_coll_type.coll_type_id='2' and biblio.classification like '%2x0%'
+
+///Mencari koleksi buku/textbook sosial (class 300-310)
+SELECT * FROM biblio,item,mst_coll_type WHERE biblio.biblio_id=item.biblio_id and item.coll_type_id=mst_coll_type.coll_type_id and mst_coll_type.coll_type_id='2' and (biblio.classification between '300' and '310')
+
+///Mencari referensi berdasarkan ref
+SELECT * FROM biblio,item,mst_coll_type WHERE biblio.biblio_id=item.biblio_id and item.coll_type_id=mst_coll_type.coll_type_id and mst_coll_type.coll_type_id='1' and biblio.title like '%ensiklopedi%'
+
+
+SELECT * FROM eprint,eprint_divisions WHERE type='thesis' and eprint.eprintid=eprint_divisions.eprintid
+
+SELECT eprint_divisions.divisions, count(*) FROM eprint__ordervalues_en,eprint_divisions,eprint WHERE eprint.type='thesis' and eprint__ordervalues_en.eprintid=eprint_divisions.eprintid and eprint.eprintid=eprint_divisions.eprintid
+
+///Mencari data skripsi='thesis' selama 1 tahun
+SELECT eprint_divisions.divisions, count(*) FROM eprint__ordervalues_en,eprint_divisions,eprint WHERE eprint.type='thesis' and eprint__ordervalues_en.eprintid=eprint_divisions.eprintid and eprint.eprintid=eprint_divisions.eprintid and (datestamp between '2017-01-01' and '2017-12-31') group by eprint_divisions.divisions
+
+///Mencari mhs pinjam buku selama satu tahun
+SELECT loan.member_id,member_name,item_code,loan_date,due_date,return_date FROM loan,member WHERE (loan_date between '2015-01-01' and '2015-12-31') and member.member_id=loan.member_id
+
+
+////Melihat data pengembalian buku rentang tanggal
+select return_date,loan.member_id,member.member_name from loan,member where loan.member_id=member.member_id  and (return_date between '2017-01-01' and '2017-12-31')order by return_date ASC
+
+///Melihat data peminjaman buku rentang tanggal
+select loan_date,loan.member_id,member.member_name from loan,member where (return_date between '2017-09-01' and '2018-02-28') order by loan_date ASC
+
+///BUK Marlini, melihat data eprints berdasrkan rentang tanggal
+
+SELECT datestamp,title,keywords,subjects,eprintid,publisher,date,creators_name FROM `eprint__ordervalues_en` WHERE 
+
+edit_lock_user='00000000000000000168' and (datestamp between '2017-09-01' and '2018-02-28')
+
+SELECT datestamp,title,keywords,subjects,eprintid,publisher,date,creators_name FROM `eprint__ordervalues_en` WHERE (datestamp between '2017-10-17' and '2018-02-28')
+
+///Mencari jumlah yang download berdasarkan judul di repository
+
+SELECT title,creators_name,subjects,divisions,eprint__ordervalues_en.datestamp,count FROM irstats2_cache_downloads,eprint__ordervalues_en where eprint__ordervalues_en.eprintid=irstats2_cache_downloads.eprintid and eprint__ordervalues_en.thesis_type='Skripsi'
